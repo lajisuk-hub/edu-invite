@@ -18,6 +18,7 @@ import {
   readConfigFromLink,
   normalize,
   pickCode,
+  pickChatUrl,
 } from '../lib/share';
 
 const PASSWORD = '1234';
@@ -172,8 +173,12 @@ export default function AdminPage() {
       setStep('pick');
       return;
     }
-    if (cfg.guide.on && !cfg.guide.chatUrl.trim()) {
-      alert('교육안내를 담으셨는데 그룹챗방 주소가 비어 있어요.');
+    if (cfg.guide.on && !pickChatUrl(cfg.guide.chatUrl)) {
+      alert(
+        cfg.guide.chatUrl.trim()
+          ? '그룹챗방 주소 칸에서 주소(https://... )를 찾지 못했어요.\n오픈채팅방 링크만 붙여넣어 주세요.'
+          : '교육안내를 담으셨는데 그룹챗방 주소가 비어 있어요.',
+      );
       setStep('guide');
       return;
     }
@@ -547,9 +552,20 @@ export default function AdminPage() {
               placeholder="예) https://open.kakao.com/o/gXXXXXX"
             />
             <p className="hint">
-              카톡 오픈채팅방에서 <b>‘채팅방 공유 → 링크 복사’</b> 한 주소를 그대로 붙여넣으시면
-              돼요.
+              카톡 오픈채팅방에서 <b>‘채팅방 공유 → 링크 복사’</b> 한 <b>주소만</b> 붙여넣어 주세요.
+              (문자 내용 전체를 넣으시면 입장이 안 돼요)
             </p>
+            {cfg.guide.chatUrl.trim() &&
+              (pickChatUrl(cfg.guide.chatUrl) ? (
+                <p className="hint">
+                  ✅ 이 주소로 입장 단추를 만들어요 : <b>{pickChatUrl(cfg.guide.chatUrl)}</b>
+                </p>
+              ) : (
+                <p className="hint" style={{ color: '#c2410c' }}>
+                  ⚠️ 여기에서 주소를 찾지 못했어요. 오픈채팅방 링크(https://open.kakao.com/...)만
+                  넣어주세요.
+                </p>
+              ))}
           </div>
 
           <div className="field">
@@ -564,8 +580,12 @@ export default function AdminPage() {
           <button
             className="btn"
             onClick={() => {
-              if (!cfg.guide.chatUrl.trim()) {
-                alert('그룹챗방 주소를 넣어주세요.');
+              if (!pickChatUrl(cfg.guide.chatUrl)) {
+                alert(
+                  cfg.guide.chatUrl.trim()
+                    ? '여기에는 오픈채팅방 링크(https://open.kakao.com/... )만 넣어주세요.\n문자 내용 전체를 붙여넣으시면 입장이 안 됩니다.'
+                    : '그룹챗방 주소를 넣어주세요.',
+                );
                 return;
               }
               goAfter('guide');
@@ -761,7 +781,7 @@ export default function AdminPage() {
               <div>
                 <b>교육안내</b>{' '}
                 {cfg.guide.on
-                  ? `그룹챗 입장 안내 드림${cfg.guide.chatUrl ? '' : ' (주소 비어 있음!)'}`
+                  ? `그룹챗 입장 안내 드림${pickChatUrl(cfg.guide.chatUrl) ? '' : ' (주소 없음!)'}`
                   : '없음'}
               </div>
               <div>

@@ -8,6 +8,20 @@ import { DEFAULT_DESIGN_ID } from './certDesigns';
 
 export const DATA_PARAM = 'd';
 
+// 그룹챗방 주소 칸에 문자 내용을 통째로(안내글 + 주소) 붙여넣으셔도
+// 그 안에 들어 있는 진짜 주소만 뽑아 준다. 주소가 없으면 빈 값을 돌려준다.
+export function pickChatUrl(raw) {
+  const text = String(raw || '').trim();
+  if (!text) return '';
+  const tidy = (u) => u.replace(/[)\]}>.,;:'"·]+$/g, '');
+  const withScheme = text.match(/https?:\/\/[^\s<>"']+/i);
+  if (withScheme) return tidy(withScheme[0]);
+  // https:// 없이 'open.kakao.com/o/xxxx' 처럼 적으신 경우
+  const bare = text.match(/(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s<>"']*)?/i);
+  if (bare) return 'https://' + tidy(bare[0]);
+  return '';
+}
+
 // 수료증 한 장의 기본 모양
 export function emptyCert() {
   return {

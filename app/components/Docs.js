@@ -20,6 +20,7 @@ import {
   fmtKoreanDate,
   todayIso,
 } from '../lib/pdf';
+import { pickChatUrl } from '../lib/share';
 
 export default function Docs({ cfg }) {
   const [stepIdx, setStepIdx] = useState(0);
@@ -62,9 +63,9 @@ export default function Docs({ cfg }) {
 
   // 안내 화면에 보일 교육명 (비워두면 교육 이름을 쓴다)
   const guideCourse = (cfg && cfg.guide && cfg.guide.course) || (cfg ? cfg.title : '');
-  // 원장님이 'open.kakao.com/...' 처럼 https:// 없이 적으셔도 열리게 해 준다
-  const rawChat = ((cfg && cfg.guide && cfg.guide.chatUrl) || '').trim();
-  const chatHref = rawChat && !/^https?:\/\//i.test(rawChat) ? `https://${rawChat}` : rawChat;
+  // 'open.kakao.com/...' 처럼 https:// 없이 적으셔도, 문자 내용을 통째로 붙여넣으셨어도
+  // 그 안의 진짜 방 주소만 뽑아서 연다
+  const chatHref = pickChatUrl(cfg && cfg.guide && cfg.guide.chatUrl);
 
   // ===== 첫 값 채우기 =====
   useEffect(() => {
